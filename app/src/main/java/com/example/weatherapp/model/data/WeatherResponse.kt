@@ -2,11 +2,13 @@ package com.example.weatherapp.model.data
 
 import com.google.gson.annotations.SerializedName
 
-data class WeatherResponse (
+open class WeatherResponse (
 
+    @SerializedName("name")
     val name: String,
     @SerializedName("coord")
     val coordinator : Coordinator,
+    @SerializedName("weather")
     val weather : List<WeatherSummary>,
     @SerializedName("timezone")
     val timeZone: String,
