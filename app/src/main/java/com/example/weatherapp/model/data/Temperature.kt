@@ -9,4 +9,6 @@ data class Temperature(
     val min: Float,
     @SerializedName("temp_max")
     val max: Float,
+    @SerializedName("humidity")
+    val humidity: Float,
 )

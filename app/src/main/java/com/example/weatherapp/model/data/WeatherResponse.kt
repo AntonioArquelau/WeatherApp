@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 open class WeatherResponse (
 
     @SerializedName("name")
-    val name: String,
+    val city: String,
     @SerializedName("coord")
     val coordinator : Coordinator,
     @SerializedName("weather")
     val weather : List<WeatherSummary>,
-    @SerializedName("timezone")
-    val timeZone: String,
+    @SerializedName("wind")
+    val wind: Wind,
     @SerializedName("main")
-    val temperature: Temperature
+    val temperature: Temperature,
 )

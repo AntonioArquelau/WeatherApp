@@ -49,7 +49,14 @@ class WeatherViewModel :ViewModel() {
                 it.data?.weather.let {it2 ->
                     if (it is DataStatus.Success)
                         _mainSummary.postValue(it2!![0].main)
+
                 }
+                _temp.postValue(it.data?.temperature?.day.toString())
+                _maxTemp.postValue(it.data?.temperature?.max.toString())
+                _minTemp.postValue(it.data?.temperature?.min.toString())
+                _humidity.postValue(it.data?.temperature?.humidity.toString())
+                _city.postValue(it.data?.city.toString())
+                _wind.postValue(it.data?.wind?.speed.toString())
 
             }
         }

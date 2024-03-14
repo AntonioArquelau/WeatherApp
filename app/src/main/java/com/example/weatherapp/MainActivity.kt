@@ -25,6 +25,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -77,12 +78,19 @@ class MainActivity : ComponentActivity() {
 fun Greeting(viewModel: WeatherViewModel) {
 
     val mainSummary: String by viewModel.mainSummary.observeAsState("")
+    val city: String by viewModel.city.observeAsState("")
+    val temp: String by viewModel.temp.observeAsState("")
+    val maxTemp: String by viewModel.maxTemp.observeAsState("")
+    val minTemp: String by viewModel.minTemp.observeAsState("")
+    val humidity: String by viewModel.humidity.observeAsState("")
+    val wind: String by viewModel.wind.observeAsState("")
+
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.lightBlue))
     ) {
-        val (row, main, city, temp, tempIcon) = createRefs()
+        val (row, main, cityRef, tempRef, tempIcon) = createRefs()
         Text(
             text = mainSummary,
             style = TitleBold,
@@ -96,9 +104,9 @@ fun Greeting(viewModel: WeatherViewModel) {
         )
 
         Text(
-            text = "Manaus",
+            text = city,
             style = SubTitleBold,
-            modifier = Modifier.constrainAs(city) {
+            modifier = Modifier.constrainAs(cityRef) {
                 top.linkTo(main.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
@@ -106,12 +114,12 @@ fun Greeting(viewModel: WeatherViewModel) {
         )
 
         Text(
-            text = "30º",
+            text = "$temp º",
             style = TempStyle,
             modifier = Modifier
                 .padding(0.dp, 40.dp, 0.dp, 0.dp)
-                .constrainAs(temp) {
-                    top.linkTo(city.bottom)
+                .constrainAs(tempRef) {
+                    top.linkTo(cityRef.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
@@ -125,7 +133,7 @@ fun Greeting(viewModel: WeatherViewModel) {
                 .height(200.dp)
                 .width(200.dp)
                 .constrainAs(tempIcon) {
-                    top.linkTo(temp.bottom)
+                    top.linkTo(tempRef.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 })
@@ -142,10 +150,10 @@ fun Greeting(viewModel: WeatherViewModel) {
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            CreateBottomMenuElements("Max", R.drawable.max_temp, "30º")
-            CreateBottomMenuElements("Min", R.drawable.min_temp, "29º")
-            CreateBottomMenuElements("Wind", R.drawable.wind, "2m/s")
-            CreateBottomMenuElements("Humidity", R.drawable.humidity, "6%")
+            CreateBottomMenuElements("Max", R.drawable.max_temp, "$maxTemp º")
+            CreateBottomMenuElements("Min", R.drawable.min_temp, "$minTemp º")
+            CreateBottomMenuElements("Wind", R.drawable.wind, "$wind m/s")
+            CreateBottomMenuElements("Humidity", R.drawable.humidity, "$humidity %")
         }
     }
 
