@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.data.WeatherResponse
 import com.example.weatherapp.model.repository.WeatherRepository
 import com.example.weatherapp.utils.DataStatus
+import com.example.weatherapp.utils.TemperatureUtils
 import kotlinx.coroutines.launch
 
 class WeatherViewModel :ViewModel() {
@@ -49,11 +50,16 @@ class WeatherViewModel :ViewModel() {
                 it.data?.weather.let {it2 ->
                     if (it is DataStatus.Success)
                         _mainSummary.postValue(it2!![0].main)
-
                 }
-                _temp.postValue(it.data?.temperature?.day.toString())
-                _maxTemp.postValue(it.data?.temperature?.max.toString())
-                _minTemp.postValue(it.data?.temperature?.min.toString())
+                _temp.postValue(it.data?.temperature?.day?.let { kelvinTemp ->
+                    TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
+                })
+                _maxTemp.postValue(it.data?.temperature?.max?.let { kelvinTemp ->
+                    TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
+                })
+                _minTemp.postValue(it.data?.temperature?.min?.let { kelvinTemp ->
+                    TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
+                })
                 _humidity.postValue(it.data?.temperature?.humidity.toString())
                 _city.postValue(it.data?.city.toString())
                 _wind.postValue(it.data?.wind?.speed.toString())

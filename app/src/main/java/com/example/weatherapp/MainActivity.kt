@@ -69,7 +69,6 @@ class MainActivity : ComponentActivity() {
                 else ->{}
             }
         }
-        Log.d("###", "### appid: " +getString(R.string.appid) )
         viewModel.getWeatherBasedOnLocation( "-3.10719", "-60.0261",getString(R.string.appid))
     }
 }

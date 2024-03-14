@@ -40,10 +40,6 @@ class WeatherRepository() {
     suspend fun getWeatherBasedOnLocation(latitude: String, longitude: String, appId: String) = flow<DataStatus<WeatherResponse>> {
         emit(DataStatus.Loading())
         val result =  weatherApi.get(latitude, longitude, appId)
-        Log.d("###", "### result: " + result)
-        Log.d("###", "### result: " + result.message())
-        Log.d("###", "### result.body(): " + result.body())
-        Log.d("###", "### result code: " + result.code())
         when(result.code()){
             200 -> {emit(DataStatus.Success(result.body()))}
             400 -> {emit(DataStatus.Error(null, result.message()))}
@@ -51,7 +47,6 @@ class WeatherRepository() {
         }
 
     }.catch {
-        Log.d("###", "### catch: " + it.message.toString())
         emit(DataStatus.Error(null, it.message.toString()))
     }.flowOn(Dispatchers.IO)
 
