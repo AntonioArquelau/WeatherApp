@@ -63,8 +63,7 @@ class MainActivity : ComponentActivity() {
         loadWeatherInfo()
     }
     private fun loadWeatherInfo(){
-        Log.d("###", "### 1")
-        viewModel.getWeatherBasedOnLocation( "-3.10719", "-60.0261",appId)
+        viewModel.getWeatherBasedOnLocation( "30.10719", "80.0261",appId)
     }
 }
 
@@ -99,10 +98,28 @@ fun CreateUI(viewModel: WeatherViewModel) {
     val minTemp: String by viewModel.minTemp.observeAsState("")
     val humidity: String by viewModel.humidity.observeAsState("")
     val wind: String by viewModel.wind.observeAsState("")
+
+    val colorId = if(temp.replace(",", ".").toFloat() < 20){
+        R.color.lightBlue
+    } else {
+        R.color.lightOrange
+    }
+
+    val iconId =when(mainSummary){
+        "cloud", "clouds" ->{
+            R.drawable.cloud
+        }
+        "rain" ->{
+            R.drawable.rain
+        }
+        else -> {
+            R.drawable.sun
+        }
+    }
     ConstraintLayout(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.lightBlue))
+            .background(colorResource(id = colorId))
     ) {
         val (row, main, cityRef, tempRef, tempIcon) = createRefs()
         Text(
@@ -140,7 +157,7 @@ fun CreateUI(viewModel: WeatherViewModel) {
         )
 
         Image(
-            painter = painterResource(id = R.drawable.cloud),
+            painter = painterResource(id = iconId),
             contentDescription = null,
             modifier = Modifier
                 .padding(0.dp, 40.dp, 0.dp, 0.dp)

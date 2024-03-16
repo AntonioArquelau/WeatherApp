@@ -49,16 +49,4 @@ class WeatherRepository() {
     }.catch {
         emit(DataStatus.Error(null, it.message.toString()))
     }.flowOn(Dispatchers.IO)
-
-//    private suspend fun requestWeatherBasedOnLocation(latitude: String, longitude: String, appId: String) = withContext(Dispatchers.IO){
-//        return@withContext try {
-//            weatherApi.get(latitude, longitude, appId).let { response ->
-//                Log.d(TAG, "Failure: $response")
-//                DataStatus.Success(response)
-//            }
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Failure: ${e.message}")
-//            DataStatus.Error(exception = e)
-//        }
-//    }
 }
