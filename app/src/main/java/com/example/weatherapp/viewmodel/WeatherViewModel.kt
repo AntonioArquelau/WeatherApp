@@ -25,6 +25,7 @@ class WeatherViewModel :ViewModel() {
     private val _minTemp = MutableLiveData<String>()
     private val _humidity = MutableLiveData<String>()
     private val _wind = MutableLiveData<String>()
+    private val _loading = MutableLiveData<Boolean>()
 
     val mainSummary: LiveData<String> = _mainSummary
     val city: LiveData<String> = _city
@@ -33,6 +34,7 @@ class WeatherViewModel :ViewModel() {
     val minTemp: LiveData<String> = _minTemp
     val humidity: LiveData<String> = _humidity
     val wind: LiveData<String> = _wind
+    val loading: LiveData<Boolean> = _loading
 
 
     private val weatherRepository: WeatherRepository by lazy {
@@ -44,25 +46,37 @@ class WeatherViewModel :ViewModel() {
     }
 
     fun getWeatherBasedOnLocation(latitude: String, longitude: String, appId: String){
+        _loading.postValue(true)
         viewModelScope.launch {
             weatherRepository.getWeatherBasedOnLocation(latitude, longitude, appId).collect {
-                weatherInfoLiveData.postValue(it)
-                it.data?.weather.let {it2 ->
-                    if (it is DataStatus.Success)
-                        _mainSummary.postValue(it2!![0].main)
+                when(it) {
+                    is DataStatus.Success -> {
+                        weatherInfoLiveData.postValue(it)
+                        it.data?.weather.let { it2 ->
+                            if (it is DataStatus.Success)
+                                _mainSummary.postValue(it2!![0].main)
+                        }
+                        _temp.postValue(it.data?.temperature?.day?.let { kelvinTemp ->
+                            TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
+                        })
+                        _maxTemp.postValue(it.data?.temperature?.max?.let { kelvinTemp ->
+                            TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
+                        })
+                        _minTemp.postValue(it.data?.temperature?.min?.let { kelvinTemp ->
+                            TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
+                        })
+                        _humidity.postValue(it.data?.temperature?.humidity.toString())
+                        _city.postValue(it.data?.city.toString())
+                        _wind.postValue(it.data?.wind?.speed.toString())
+                        _loading.postValue(false)
+                    }
+                    is DataStatus.Error ->{
+                        _loading.postValue(false)
+                    }
+                    else ->{
+                        _loading.postValue(true)
+                    }
                 }
-                _temp.postValue(it.data?.temperature?.day?.let { kelvinTemp ->
-                    TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
-                })
-                _maxTemp.postValue(it.data?.temperature?.max?.let { kelvinTemp ->
-                    TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
-                })
-                _minTemp.postValue(it.data?.temperature?.min?.let { kelvinTemp ->
-                    TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
-                })
-                _humidity.postValue(it.data?.temperature?.humidity.toString())
-                _city.postValue(it.data?.city.toString())
-                _wind.postValue(it.data?.wind?.speed.toString())
 
             }
         }
