@@ -16,7 +16,7 @@ class WeatherViewModel :ViewModel() {
     companion object {
         private const val TAG = "WeatherViewModel"
     }
-    private val weatherInfoLiveData = MutableLiveData<DataStatus<WeatherResponse>>()
+    private val _weatherInfoLiveData = MutableLiveData<DataStatus<WeatherResponse>>()
 
     private val _mainSummary = MutableLiveData<String>()
     private val _city = MutableLiveData("")
@@ -34,27 +34,22 @@ class WeatherViewModel :ViewModel() {
     val minTemp: LiveData<String> = _minTemp
     val humidity: LiveData<String> = _humidity
     val wind: LiveData<String> = _wind
-    val loading: LiveData<Boolean> = _loading
+    val infoStatus: LiveData<DataStatus<WeatherResponse>> = _weatherInfoLiveData
 
 
     private val weatherRepository: WeatherRepository by lazy {
         WeatherRepository()
     }
 
-    fun getTemp(): MutableLiveData<DataStatus<WeatherResponse>>{
-        return weatherInfoLiveData
-    }
-
     fun getWeatherBasedOnLocation(latitude: String, longitude: String, appId: String){
         _loading.postValue(true)
         viewModelScope.launch {
             weatherRepository.getWeatherBasedOnLocation(latitude, longitude, appId).collect {
+                _weatherInfoLiveData.postValue(it)
                 when(it) {
                     is DataStatus.Success -> {
-                        weatherInfoLiveData.postValue(it)
                         it.data?.weather.let { it2 ->
-                            if (it is DataStatus.Success)
-                                _mainSummary.postValue(it2!![0].main)
+                            _mainSummary.postValue(it2!![0].main)
                         }
                         _temp.postValue(it.data?.temperature?.day?.let { kelvinTemp ->
                             TemperatureUtils.convertKelvinToCelsius(kelvinTemp)
@@ -77,7 +72,6 @@ class WeatherViewModel :ViewModel() {
                         _loading.postValue(true)
                     }
                 }
-
             }
         }
     }
