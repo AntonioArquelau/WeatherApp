@@ -45,7 +45,6 @@ class WeatherViewModel :ViewModel() {
         _loading.postValue(true)
         viewModelScope.launch {
             weatherRepository.getWeatherBasedOnLocation(latitude, longitude, appId).collect {
-                _weatherInfoLiveData.postValue(it)
                 when(it) {
                     is DataStatus.Success -> {
                         it.data?.weather.let { it2 ->
@@ -72,6 +71,7 @@ class WeatherViewModel :ViewModel() {
                         _loading.postValue(true)
                     }
                 }
+                _weatherInfoLiveData.postValue(it)
             }
         }
     }

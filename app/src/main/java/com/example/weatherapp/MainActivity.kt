@@ -1,7 +1,11 @@
 package com.example.weatherapp
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -27,6 +31,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.weatherapp.model.data.WeatherResponse
 import com.example.weatherapp.ui.theme.MenuTitleText
 import com.example.weatherapp.ui.theme.MenuValueText
@@ -37,6 +43,8 @@ import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.utils.DataStatus
 import com.example.weatherapp.utils.LoadingUtils
 import com.example.weatherapp.viewmodel.WeatherViewModel
+import java.text.DecimalFormat
+import java.text.NumberFormat
 
 class MainActivity : ComponentActivity() {
 
@@ -52,24 +60,95 @@ class MainActivity : ComponentActivity() {
         getString(R.string.appid)
     }
 
+    private lateinit var locationManager: LocationManager
+    private val locationPermissionCode = 2
+    val formatter: NumberFormat = DecimalFormat("#0.00")
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             WeatherAppTheme {
-                ShowUI(viewModel,"-3.10719", "-60.0261",appId)
+                ShowUI(viewModel){onClickReload()}
             }
         }
-        loadWeatherInfo()
+        getLocation()
+    }s
+
+    private fun onClickReload(){
+         if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+             ActivityCompat.requestPermissions(
+                 this,
+                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                 locationPermissionCode
+             )
+            return
+        }
+        val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+        viewModel.getWeatherBasedOnLocation(
+            location?.latitude.toString(),
+            location?.longitude.toString(),
+            appId
+        )
     }
-    private fun loadWeatherInfo(){
-        viewModel.getWeatherBasedOnLocation( "30.10719", "80.0261",appId)
+
+    private fun getLocation() {
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED)
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                locationPermissionCode
+            )
+        }
+        else{
+            val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            viewModel.getWeatherBasedOnLocation(
+                location?.latitude.toString(),
+                location?.longitude.toString(),
+                appId
+            )
+        }
+    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == locationPermissionCode) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                viewModel.getWeatherBasedOnLocation(location?.latitude.toString(), location?.longitude.toString(), appId)
+            }
+            else {
+                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
 
 
 @Composable
-fun ShowUI(viewModel: WeatherViewModel, lat: String, lon: String, appId: String){
+fun ShowUI(viewModel: WeatherViewModel, onClickReload: () -> Unit){
     val dataStatus : DataStatus<WeatherResponse> by viewModel.infoStatus.observeAsState(DataStatus.Loading())
     when(dataStatus){
         is DataStatus.Success ->{
@@ -79,7 +158,7 @@ fun ShowUI(viewModel: WeatherViewModel, lat: String, lon: String, appId: String)
         is DataStatus.Error -> {
             LoadingUtils.LoadingUI(false)
             ShowErrorScreen {
-                viewModel.getWeatherBasedOnLocation(lat, lon, appId)
+                onClickReload
             }
         }
         else -> {
@@ -106,10 +185,10 @@ fun CreateUI(viewModel: WeatherViewModel) {
     }
 
     val iconId =when(mainSummary){
-        "cloud", "clouds" ->{
+        "Cloud", "Clouds" ->{
             R.drawable.cloud
         }
-        "rain" ->{
+        "Rain" ->{
             R.drawable.rain
         }
         else -> {
