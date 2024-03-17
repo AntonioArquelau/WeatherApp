@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="main_summary_padding_top">80.dp</dimen>
+    <dimen name="temp_padding_top">40.dp</dimen>
+    <dimen name="main_image_padding_top">40.dp</dimen>
+    <dimen name="main_image_size">200.dp</dimen>
+    <dimen name="bottom_row_padding_start">20.dp</dimen>
+    <dimen name="bottom_row_padding_end">20.dp</dimen>
+    <dimen name="bottom_reload_padding_start">20.dp</dimen>
+    <dimen name="bottom_reload_padding_end">20.dp</dimen>
+    <dimen name="bottom_reload_padding_bottom">20.dp</dimen>
+    <dimen name="column_bottom_info_width">80.dp</dimen>
+    <dimen name="column_bottom_info_height">140.dp</dimen>
+    <dimen name="error_image_icon_size">200.dp</dimen>
+    <dimen name="error_text_padding_top">10.dp</dimen>
+    <dimen name="error_text_padding_bottom">20.dp</dimen>
+    <dimen name="label_text_bottom_item_padding_bottom">10.dp</dimen>
+    <dimen name="label_text_bottom_item_padding_top">20.dp</dimen>
+    <dimen name="label_icon_bottom_item_size">30.dp</dimen>
+    <dimen name="default_dimen">0.dp</dimen>
+</resources>

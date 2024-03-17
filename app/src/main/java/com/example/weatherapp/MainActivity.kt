@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings.Global.getString
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,7 +29,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.app.ActivityCompat
@@ -73,7 +76,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         getLocation()
-    }s
+    }
 
     private fun onClickReload(){
          if (ActivityCompat.checkSelfPermission(
@@ -178,13 +181,19 @@ fun CreateUI(viewModel: WeatherViewModel) {
     val humidity: String by viewModel.humidity.observeAsState("")
     val wind: String by viewModel.wind.observeAsState("")
 
-    val colorId = if(temp.replace(",", ".").toFloat() < 20){
-        R.color.lightBlue
-    } else {
-        R.color.lightOrange
+    val colorId = when(mainSummary){
+        "Cloud", "Clouds" ->{
+            R.color.lightBlue
+        }
+        "Rain" ->{
+            R.color.lightBlue
+        }
+        else -> {
+            R.color.lightOrange
+        }
     }
 
-    val iconId =when(mainSummary){
+    val iconId = when(mainSummary){
         "Cloud", "Clouds" ->{
             R.drawable.cloud
         }
@@ -205,7 +214,12 @@ fun CreateUI(viewModel: WeatherViewModel) {
             text = mainSummary,
             style = TitleBold,
             modifier = Modifier
-                .padding(0.dp, 80.dp, 0.dp, 0.dp)
+                .padding(
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.main_summary_padding_top),
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.default_dimen)
+                )
                 .constrainAs(main) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
@@ -227,7 +241,12 @@ fun CreateUI(viewModel: WeatherViewModel) {
             text = "$temp º",
             style = TempStyle,
             modifier = Modifier
-                .padding(0.dp, 40.dp, 0.dp, 0.dp)
+                .padding(
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.temp_padding_top),
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.default_dimen),
+                )
                 .constrainAs(tempRef) {
                     top.linkTo(cityRef.bottom)
                     start.linkTo(parent.start)
@@ -239,9 +258,14 @@ fun CreateUI(viewModel: WeatherViewModel) {
             painter = painterResource(id = iconId),
             contentDescription = null,
             modifier = Modifier
-                .padding(0.dp, 40.dp, 0.dp, 0.dp)
-                .height(200.dp)
-                .width(200.dp)
+                .padding(
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.main_image_padding_top),
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.default_dimen)
+                )
+                .height(dimensionResource(id = R.dimen.main_image_size))
+                .width(dimensionResource(id = R.dimen.main_image_size))
                 .constrainAs(tempIcon) {
                     top.linkTo(tempRef.bottom)
                     start.linkTo(parent.start)
@@ -252,7 +276,12 @@ fun CreateUI(viewModel: WeatherViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(colorResource(id = R.color.lightGray))
-                .padding(20.dp, 0.dp, 20.dp, 0.dp)
+                .padding(
+                    dimensionResource(id = R.dimen.bottom_row_padding_start),
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.bottom_row_padding_end),
+                    dimensionResource(id = R.dimen.default_dimen)
+                )
                 .constrainAs(row) {
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
@@ -260,10 +289,10 @@ fun CreateUI(viewModel: WeatherViewModel) {
                 },
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            CreateBottomMenuElements("Max", R.drawable.max_temp, "$maxTemp º")
-            CreateBottomMenuElements("Min", R.drawable.min_temp, "$minTemp º")
-            CreateBottomMenuElements("Wind", R.drawable.wind, "$wind m/s")
-            CreateBottomMenuElements("Humidity", R.drawable.humidity, "$humidity %")
+            CreateBottomMenuElements(stringResource(R.string.max), R.drawable.max_temp, "$maxTemp º")
+            CreateBottomMenuElements(stringResource(R.string.min), R.drawable.min_temp, "$minTemp º")
+            CreateBottomMenuElements(stringResource(R.string.wind), R.drawable.wind, "$wind m/s")
+            CreateBottomMenuElements(stringResource(R.string.humidity), R.drawable.humidity, "$humidity %")
         }
     }
 }
@@ -281,17 +310,21 @@ fun ShowErrorScreen (onClickReload: () -> Unit){
         ) {
             Image(
                 modifier = Modifier
-                    .width(200.dp)
-                    .height(200.dp),
+                    .width(dimensionResource(id = R.dimen.error_image_icon_size))
+                    .height(dimensionResource(id = R.dimen.error_image_icon_size)),
                 painter = painterResource(id = R.drawable.error),
                 contentDescription = null
             )
             Text(
-
                 modifier = Modifier
-                    .padding(0.dp, 10.dp, 0.dp, 20.dp),
+                    .padding(
+                        dimensionResource(id = R.dimen.default_dimen),
+                        dimensionResource(id = R.dimen.error_text_padding_top),
+                        dimensionResource(id = R.dimen.default_dimen),
+                        dimensionResource(id = R.dimen.error_text_padding_bottom)
+                    ),
                 style = MenuValueText,
-                text = "Sorry Error to processs your request"
+                text = stringResource(R.string.error_message)
             )
         }
 
@@ -299,10 +332,15 @@ fun ShowErrorScreen (onClickReload: () -> Unit){
             onClick = { onClickReload.invoke() },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp, 0.dp, 20.dp, 20.dp)
+                .padding(
+                    dimensionResource(id = R.dimen.bottom_reload_padding_start),
+                    dimensionResource(id = R.dimen.default_dimen),
+                    dimensionResource(id = R.dimen.bottom_reload_padding_end),
+                    dimensionResource(id = R.dimen.bottom_reload_padding_bottom)
+                )
                 .align(Alignment.BottomCenter)
             ) {
-            Text("Reload")
+            Text(stringResource(R.string.reload))
         }
     }
 }
@@ -312,24 +350,34 @@ fun CreateBottomMenuElements(title: String, icon: Int, value: String) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .width(80.dp)
-            .height(140.dp)
+            .width(dimensionResource(id = R.dimen.column_bottom_info_width))
+            .height(dimensionResource(id = R.dimen.column_bottom_info_height))
     ) {
         Text(
-            modifier = Modifier.padding(0.dp, 20.dp, 0.dp, 10.dp),
+            modifier = Modifier.padding(
+                dimensionResource(id = R.dimen.default_dimen),
+                dimensionResource(id = R.dimen.label_text_bottom_item_padding_top),
+                dimensionResource(id = R.dimen.default_dimen),
+                dimensionResource(id = R.dimen.label_text_bottom_item_padding_bottom)
+            ),
             style = MenuTitleText,
             text = title
         )
         Icon(
             modifier = Modifier
-                .width(30.dp)
-                .height(30.dp),
+                .width(dimensionResource(id = R.dimen.label_icon_bottom_item_size))
+                .height(dimensionResource(id = R.dimen.label_icon_bottom_item_size)),
             tint = colorResource(id = R.color.lightBlack),
             painter = painterResource(id = icon),
             contentDescription = null
         )
         Text(
-            modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 20.dp),
+            modifier = Modifier.padding(
+                dimensionResource(id = R.dimen.default_dimen),
+                dimensionResource(id = R.dimen.label_text_bottom_item_padding_top),
+                dimensionResource(id = R.dimen.default_dimen),
+                dimensionResource(id = R.dimen.label_text_bottom_item_padding_bottom)
+            ),
             style = MenuValueText,
             text = value
         )
